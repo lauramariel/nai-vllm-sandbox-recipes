@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { ThemeProvider } from "next-themes";
 import "./globals.css";
 import { SiteHeader } from "./SiteHeader";
 
@@ -23,6 +24,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      // next-themes sets class="dark" on <html> from an inline script that
+      // runs before hydration (reading localStorage/system preference), so
+      // a mismatch against the server-rendered class is expected here.
+      suppressHydrationWarning
     >
       {/* suppressHydrationWarning: browser extensions (e.g. Grammarly) inject
           data-gr-* attributes onto <body> before React hydrates, which is a
@@ -31,8 +36,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         className="min-h-full flex flex-col bg-gray-50 text-gray-900 dark:bg-gray-950 dark:text-gray-100"
         suppressHydrationWarning
       >
-        <SiteHeader />
-        <div className="flex-1">{children}</div>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <SiteHeader />
+          <div className="flex-1">{children}</div>
+        </ThemeProvider>
       </body>
     </html>
   );

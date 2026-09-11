@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { GitHubLogo } from "./GitHubLogo";
+import { ThemeToggle } from "./ThemeToggle";
 import { buttonPrimaryClass } from "./ui";
 
 export function SiteHeader() {
@@ -23,6 +24,7 @@ export function SiteHeader() {
           >
             <GitHubLogo className="h-6 w-6" />
           </a>
+          <ThemeToggle />
           <Link href="/submit" className={buttonPrimaryClass}>
             Submit a recipe
           </Link>
