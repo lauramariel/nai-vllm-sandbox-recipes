@@ -4,6 +4,29 @@ import { cardClass, mutedTextClass } from "../ui";
 import { SignInButton, SignOutButton } from "./AuthButtons";
 import { SubmitForm } from "./SubmitForm";
 
+function contributingUrl(): string {
+  const owner = process.env.CONTENT_REPO_OWNER ?? "";
+  const repo = process.env.CONTENT_REPO_NAME ?? "";
+  return `https://github.com/${owner}/${repo}/blob/main/CONTRIBUTING.md`;
+}
+
+function ManualPrNote() {
+  return (
+    <p className={mutedTextClass}>
+      Prefer to skip the form? You can open a PR by hand instead — see{" "}
+      <a
+        href={contributingUrl()}
+        target="_blank"
+        rel="noreferrer"
+        className="text-blue-600 hover:underline dark:text-blue-400"
+      >
+        CONTRIBUTING.md
+      </a>
+      .
+    </p>
+  );
+}
+
 export default async function SubmitPage() {
   const session = await getServerSession(authOptions);
 
@@ -11,6 +34,7 @@ export default async function SubmitPage() {
     return (
       <main className="mx-auto max-w-xl space-y-4 p-8">
         <h1 className="text-2xl font-bold tracking-tight">Submit a recipe</h1>
+        <ManualPrNote />
         <div className={`${cardClass} space-y-4`}>
           <p>Sign in with GitHub to submit a recipe (identity only — no write access is requested).</p>
           <SignInButton />
@@ -30,6 +54,7 @@ export default async function SubmitPage() {
           <SignOutButton />
         </div>
       </div>
+      <ManualPrNote />
       <SubmitForm login={session.login} />
     </main>
   );
