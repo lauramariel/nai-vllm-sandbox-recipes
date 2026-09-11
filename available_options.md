@@ -1,6 +1,16 @@
 These are the options available when a user selects different engine sources in NAI 2.8 (vLLM Sandbox). For non-validated models or any model imported via Hugging Face URL (not taken from the model catalog)
 
 ```
+Compute Configuration applies to ALL engine sources (NAI, community vLLM
+registry, other registry) — it is not NAI-specific:
+    1. Instances: number of inference pods (Default: 1)
+    2. Node allocation per instance:
+       1. Single Node - Serve endpoint using accelerators on one node
+       2. Multi-Node - Serve the endpoint through accelerators spread across nodes with some network overhead.
+    3. Accelerators per instance
+    4. vCPUs per instance
+    5. Memory per instance
+
 If Engine Source = NAI:
     1. Enable KV Cache Aware Routing - True or False
     2. Enable KV Cache Offloading - True or False
@@ -24,14 +34,7 @@ If Engine Source = NAI:
                 e.g.: 
                     VLLM_CPU_KVCACHE_SPACE=8
                     TIKTOKEN_ENCODINGS_BASE=/path/to/your/encodings
-    5. Compute Configuration:
-       1. Instances: number of inference pods (Default: 1)
-       2. Node allocation per instance:
-          1. Single Node - Serve endpoint using accelerators on one node
-          2. Multi-Node - Serve the endpoint through accelerators spread across nodes with some network overhead.
-       3. Accelerators per instance 
-       4. vCPUS per Instance
-       5. Host Memory per Instance
+    5. Compute Configuration (see above — applies here too)
     
 If Engine Source = Import from community vLLM registry:
     1. User specifies "Engine Tag": v0.28.0 (uses docker.io/vllm/vllm-openai)
@@ -46,6 +49,7 @@ If Engine Source = Import from community vLLM registry:
             e.g.: 
                 VLLM_CPU_KVCACHE_SPACE=8
                 TIKTOKEN_ENCODINGS_BASE=/path/to/your/encodings
+    4. Compute Configuration (see above)
 
 If Engine Source = Import from other registry is selected:
     1. User specifies "Engine Image URL"
@@ -60,5 +64,6 @@ If Engine Source = Import from other registry is selected:
             e.g.: 
                 VLLM_CPU_KVCACHE_SPACE=8
                 TIKTOKEN_ENCODINGS_BASE=/path/to/your/encodings
+    4. Compute Configuration (see above)
 ```
 
