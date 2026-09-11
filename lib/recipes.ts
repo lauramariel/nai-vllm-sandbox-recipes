@@ -41,7 +41,7 @@ export function loadRecipes(dir: string = DEFAULT_RECIPES_DIR): LoadedRecipe[] {
 
   const files = fs
     .readdirSync(dir)
-    .filter((file) => file.endsWith(".md"))
+    .filter((file) => file.endsWith(".md") && file.toLowerCase() !== "readme.md")
     .sort();
 
   const loaded: LoadedRecipe[] = [];

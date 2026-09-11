@@ -24,8 +24,20 @@ describe("loadRecipes", () => {
     expect(loadRecipes(path.join(FIXTURES_DIR, "does-not-exist"))).toEqual([]);
   });
 
-  it("loads every real seed recipe under /recipes cleanly", () => {
-    const recipes = loadRecipes();
+  it("returns an empty array for the real (not-yet-populated) /recipes dir", () => {
+    // /recipes/ holds only real, merged submissions. It's expected to be
+    // empty until the first one lands — see recipes/README.md.
+    expect(loadRecipes()).toEqual([]);
+  });
+
+  it("ignores recipes/README.md rather than treating it as a recipe", () => {
+    const dir = path.join(FIXTURES_DIR, "dir-with-readme");
+    expect(() => loadRecipes(dir)).not.toThrow();
+    expect(loadRecipes(dir)).toEqual([]);
+  });
+
+  it("loads every seed fixture recipe cleanly", () => {
+    const recipes = loadRecipes(path.join(FIXTURES_DIR, "seed-recipes"));
     expect(recipes.length).toBeGreaterThanOrEqual(2);
     for (const { slug, recipe } of recipes) {
       expect(slug).toMatch(/^[a-z0-9-]+$/);
@@ -35,8 +47,8 @@ describe("loadRecipes", () => {
 });
 
 describe("buildRecipeIndex", () => {
-  it("derives index entries from the real seed recipes", () => {
-    const index = buildRecipeIndex(loadRecipes());
+  it("derives index entries from the seed fixture recipes", () => {
+    const index = buildRecipeIndex(loadRecipes(path.join(FIXTURES_DIR, "seed-recipes")));
     const llama = index.find((entry) => entry.slug === "llama-3-3-70b-instruct-4xh100-80gb");
     expect(llama).toBeDefined();
     expect(llama).toMatchObject({
