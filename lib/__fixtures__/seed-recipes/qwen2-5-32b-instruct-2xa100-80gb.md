@@ -15,6 +15,9 @@ hardware:
   gpu_model: A100-80GB
   gpu_count: 2
   node_allocation: single
+  instances: 1
+  vcpus_per_instance: 16
+  host_memory_per_instance_gib: 64
 ---
 
 ## Notes

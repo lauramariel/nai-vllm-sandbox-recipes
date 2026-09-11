@@ -90,7 +90,14 @@ describe("serializeRecipe / parseRecipeFile round trip", () => {
       engine_source: "community-vllm-registry",
       engine_tag: "v0.28.0",
       kv_cache_aware_routing: true,
-      hardware: { gpu_model: "A100-40GB", gpu_count: 1 },
+      hardware: {
+        gpu_model: "A100-40GB",
+        gpu_count: 1,
+        node_allocation: "single",
+        instances: 1,
+        vcpus_per_instance: 8,
+        host_memory_per_instance_gib: 16,
+      },
     });
     const recipe = buildRecipe(minimalSubmission, {
       submitted_by: "laura-m",
@@ -126,6 +133,10 @@ env_vars:
 hardware:
   gpu_model: A100-40GB
   gpu_count: 2
+  node_allocation: single
+  instances: 1
+  vcpus_per_instance: 8
+  host_memory_per_instance_gib: 16
 ---
 
 ## Notes
@@ -146,7 +157,14 @@ Some notes about this recipe.
       kv_cache_aware_routing: true,
       vllm_args: ["--dtype bfloat16"],
       env_vars: { VLLM_CPU_KVCACHE_SPACE: "8" },
-      hardware: { gpu_model: "A100-40GB", gpu_count: 2 },
+      hardware: {
+        gpu_model: "A100-40GB",
+        gpu_count: 2,
+        node_allocation: "single",
+        instances: 1,
+        vcpus_per_instance: 8,
+        host_memory_per_instance_gib: 16,
+      },
     });
     expect(notes).toBe("Some notes about this recipe.");
   });

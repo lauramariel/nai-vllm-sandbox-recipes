@@ -17,7 +17,14 @@ const recipe: Recipe = recipeSchema.parse({
   nai_version: "2.8",
   engine_source: "nai",
   kv_cache_aware_routing: true,
-  hardware: { gpu_model: "H100-80GB", gpu_count: 4 },
+  hardware: {
+    gpu_model: "H100-80GB",
+    gpu_count: 4,
+    node_allocation: "single",
+    instances: 1,
+    vcpus_per_instance: 32,
+    host_memory_per_instance_gib: 256,
+  },
   submitted_by: "laura-m",
   submitted_at: "2026-09-10",
 });

@@ -38,10 +38,10 @@ export const speculativeMethodSchema = z.enum(["n-gram"]);
 const hardwareSchema = z.object({
   gpu_model: z.string().min(1, "gpu_model is required"),
   gpu_count: z.number().int().positive(),
-  node_allocation: nodeAllocationSchema.optional(),
-  instances: z.number().int().positive().optional(),
-  vcpus_per_instance: z.number().int().positive().optional(),
-  host_memory_per_instance_gib: z.number().positive().optional(),
+  node_allocation: nodeAllocationSchema,
+  instances: z.number().int().positive(),
+  vcpus_per_instance: z.number().int().positive(),
+  host_memory_per_instance_gib: z.number().positive(),
 });
 
 const kvCacheOffloadingSchema = z.object({

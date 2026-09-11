@@ -134,10 +134,10 @@ env_vars:                                     # map; keys must match ^[A-Z_][A-Z
 hardware:
   gpu_model: H100-80GB                        # required
   gpu_count: 4                                # required, positive integer
-  node_allocation: single                     # optional: single | multi
-  instances: 1                                # optional, positive integer
-  vcpus_per_instance: 32                      # optional, positive integer
-  host_memory_per_instance_gib: 256           # optional, positive number
+  node_allocation: single                     # required: single | multi
+  instances: 1                                # required, positive integer
+  vcpus_per_instance: 32                      # required, positive integer
+  host_memory_per_instance_gib: 256           # required, positive number
 
 # --- Advanced NAI settings (optional; valid only when engine_source == nai) ---
 nai_advanced:
@@ -182,8 +182,12 @@ observed, gotchas.
   recipe relied on platform-provided defaults.
 - **`env_vars`** (optional, default `{}`) — string->string map; keys match
   `^[A-Z_][A-Z0-9_]*$`; values coerced to strings.
-- **`hardware.gpu_model`** (required), **`hardware.gpu_count`** (required,
-  positive integer). Remaining hardware fields optional.
+- **`hardware`** — all fields required: `gpu_model` (non-empty string),
+  `gpu_count` (positive integer), `node_allocation` (`single` | `multi`),
+  `instances` (positive integer), `vcpus_per_instance` (positive
+  integer), `host_memory_per_instance_gib` (positive number). Compute
+  configuration (node allocation, instances, vCPUs, memory) applies
+  regardless of `engine_source` — see `available_options.md`.
 - **`nai_advanced`** (optional object) — only permitted when
   `engine_source == nai`.
   - `kv_cache_offloading`: `enabled` (bool). When `enabled`,
@@ -244,11 +248,12 @@ Client component, driven by the Zod schema:
    `engine_tag`; `other-registry` reveals `engine_image_url`; `nai` reveals
    neither.
 3. `kv_cache_aware_routing` toggle.
-4. **vLLM args**: repeatable single-line text rows (order preserved).
-   **Env vars**: repeatable key/value rows.
-5. Hardware: `gpu_model` and `gpu_count` required; `node_allocation`,
-   `instances`, `vcpus_per_instance`, `host_memory_per_instance_gib`
-   optional.
+4. **vLLM args**: multi-line textarea, one arg per line, so a block can be
+   pasted in at once (order preserved). **Env vars**: multi-line textarea,
+   one `KEY=value` per line.
+5. Hardware: all fields required — `gpu_model`, `gpu_count`,
+   `node_allocation`, `instances`, `vcpus_per_instance`,
+   `host_memory_per_instance_gib`.
 6. Collapsed "Advanced NAI settings" section, enabled only when
    `engine_source == nai`: KV cache offloading (enabled, tier,
    memory per accelerator), speculative decoding (enabled, method,

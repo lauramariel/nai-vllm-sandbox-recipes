@@ -1,10 +1,11 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useFieldArray, useForm, useWatch } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { recipeSubmissionSchema } from "@/lib/schema";
 import { buildRecipe, serializeRecipe } from "@/lib/serialize";
 import { normalizeModelInput } from "@/lib/normalize-model";
+import { parseEnvVarsText, parseVllmArgsText } from "@/lib/parse-form-text";
 
 interface FormValues {
   model: string;
@@ -14,8 +15,8 @@ interface FormValues {
   engine_tag: string;
   engine_image_url: string;
   kv_cache_aware_routing: boolean;
-  vllm_args: { value: string }[];
-  env_vars: { key: string; value: string }[];
+  vllm_args_text: string;
+  env_vars_text: string;
   hardware: {
     gpu_model: string;
     gpu_count: string;
@@ -40,8 +41,8 @@ const defaultValues: FormValues = {
   engine_tag: "",
   engine_image_url: "",
   kv_cache_aware_routing: false,
-  vllm_args: [],
-  env_vars: [],
+  vllm_args_text: "",
+  env_vars_text: "",
   hardware: {
     gpu_model: "",
     gpu_count: "",
@@ -68,19 +69,13 @@ function numberOrUndefined(raw: string): number | undefined {
 // which nai_advanced sub-blocks to include) don't leak into the shared
 // contract.
 function toPayload(values: FormValues): unknown {
-  const env_vars: Record<string, string> = {};
-  for (const row of values.env_vars) {
-    const key = row.key.trim();
-    if (key !== "") env_vars[key] = row.value;
-  }
-
   const payload: Record<string, unknown> = {
     model: normalizeModelInput(values.model),
     nai_version: values.nai_version.trim(),
     engine_source: values.engine_source,
     kv_cache_aware_routing: values.kv_cache_aware_routing,
-    vllm_args: values.vllm_args.map((row) => row.value.trim()).filter((v) => v !== ""),
-    env_vars,
+    vllm_args: parseVllmArgsText(values.vllm_args_text),
+    env_vars: parseEnvVarsText(values.env_vars_text),
     hardware: {
       gpu_model: values.hardware.gpu_model.trim(),
       gpu_count: numberOrUndefined(values.hardware.gpu_count),
@@ -132,16 +127,12 @@ function toPayload(values: FormValues): unknown {
 const inputClass =
   "w-full rounded-md border border-gray-300 px-3 py-1.5 dark:border-gray-600 dark:bg-gray-900";
 const labelClass = "block text-sm font-medium mb-1";
-const buttonClass =
-  "rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium cursor-pointer hover:bg-gray-100 dark:border-gray-600 dark:hover:bg-gray-800";
 const primaryButtonClass =
   "rounded-md bg-blue-600 px-4 py-2 font-medium text-white cursor-pointer hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50";
 
 export function SubmitForm({ login }: { login: string }) {
   const { register, control, handleSubmit } = useForm<FormValues>({ defaultValues });
   const values = useWatch({ control });
-  const vllmArgs = useFieldArray({ control, name: "vllm_args" });
-  const envVars = useFieldArray({ control, name: "env_vars" });
 
   const [submitState, setSubmitState] = useState<
     | { status: "idle" }
@@ -256,52 +247,31 @@ export function SubmitForm({ login }: { login: string }) {
           </label>
         </section>
 
-        {/* 4. vLLM args / env vars */}
+        {/* 4. vLLM args / env vars — paste multiple lines at once */}
         <section className="space-y-2">
-          <span className={labelClass}>vLLM args</span>
-          {vllmArgs.fields.map((field, index) => (
-            <div key={field.id} className="flex gap-2">
-              <input
-                className={inputClass}
-                placeholder="--dtype bfloat16"
-                {...register(`vllm_args.${index}.value` as const)}
-              />
-              <button type="button" className={buttonClass} onClick={() => vllmArgs.remove(index)}>
-                Remove
-              </button>
-            </div>
-          ))}
-          <button type="button" className={buttonClass} onClick={() => vllmArgs.append({ value: "" })}>
-            Add argument
-          </button>
+          <label className={labelClass} htmlFor="vllm_args_text">
+            vLLM args (one per line)
+          </label>
+          <textarea
+            id="vllm_args_text"
+            rows={4}
+            className={`${inputClass} font-mono`}
+            placeholder={"--dtype bfloat16\n--max-model-len 25600"}
+            {...register("vllm_args_text")}
+          />
         </section>
 
         <section className="space-y-2">
-          <span className={labelClass}>Env vars</span>
-          {envVars.fields.map((field, index) => (
-            <div key={field.id} className="flex gap-2">
-              <input
-                className={inputClass}
-                placeholder="KEY"
-                {...register(`env_vars.${index}.key` as const)}
-              />
-              <input
-                className={inputClass}
-                placeholder="value"
-                {...register(`env_vars.${index}.value` as const)}
-              />
-              <button type="button" className={buttonClass} onClick={() => envVars.remove(index)}>
-                Remove
-              </button>
-            </div>
-          ))}
-          <button
-            type="button"
-            className={buttonClass}
-            onClick={() => envVars.append({ key: "", value: "" })}
-          >
-            Add variable
-          </button>
+          <label className={labelClass} htmlFor="env_vars_text">
+            Env vars (KEY=value, one per line)
+          </label>
+          <textarea
+            id="env_vars_text"
+            rows={4}
+            className={`${inputClass} font-mono`}
+            placeholder={"VLLM_CPU_KVCACHE_SPACE=8\nTIKTOKEN_ENCODINGS_BASE=/path/to/your/encodings"}
+            {...register("env_vars_text")}
+          />
         </section>
 
         {/* 5. Hardware */}
@@ -321,7 +291,7 @@ export function SubmitForm({ login }: { login: string }) {
           </div>
           <div>
             <label className={labelClass} htmlFor="node_allocation">
-              Node allocation (optional)
+              Node allocation
             </label>
             <select id="node_allocation" className={inputClass} {...register("hardware.node_allocation")}>
               <option value="">—</option>
@@ -331,19 +301,19 @@ export function SubmitForm({ login }: { login: string }) {
           </div>
           <div>
             <label className={labelClass} htmlFor="instances">
-              Instances (optional)
+              Instances
             </label>
             <input id="instances" className={inputClass} {...register("hardware.instances")} />
           </div>
           <div>
             <label className={labelClass} htmlFor="vcpus_per_instance">
-              vCPUs per instance (optional)
+              vCPUs per instance
             </label>
             <input id="vcpus_per_instance" className={inputClass} {...register("hardware.vcpus_per_instance")} />
           </div>
           <div>
             <label className={labelClass} htmlFor="host_memory_per_instance_gib">
-              Host memory per instance, GiB (optional)
+              Host memory per instance, GiB
             </label>
             <input
               id="host_memory_per_instance_gib"

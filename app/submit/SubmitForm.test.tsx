@@ -14,6 +14,10 @@ describe("SubmitForm", () => {
     await user.type(screen.getByLabelText(/nai version/i), "2.8");
     await user.type(screen.getByLabelText(/gpu model/i), "H100-80GB");
     await user.type(screen.getByLabelText(/gpu count/i), "4");
+    await user.selectOptions(screen.getByLabelText(/node allocation/i), "single");
+    await user.type(screen.getByLabelText(/instances/i), "1");
+    await user.type(screen.getByLabelText(/vcpus per instance/i), "8");
+    await user.type(screen.getByLabelText(/host memory per instance/i), "16");
     // engine_source defaults to "nai", which requires neither engine_tag
     // nor engine_image_url, so the payload should now be valid.
 
@@ -55,5 +59,31 @@ describe("SubmitForm", () => {
 
     await user.selectOptions(screen.getByLabelText(/engine source/i), "nai");
     expect(fieldset).toBeEnabled();
+  });
+
+  it("pasted multi-line args and env vars flow through to the live preview", async () => {
+    const user = userEvent.setup();
+    render(<SubmitForm login="laura-m" />);
+
+    await user.type(screen.getByLabelText(/^model/i), "org/name");
+    await user.type(screen.getByLabelText(/nai version/i), "2.8");
+    await user.type(screen.getByLabelText(/gpu model/i), "H100-80GB");
+    await user.type(screen.getByLabelText(/gpu count/i), "4");
+    await user.selectOptions(screen.getByLabelText(/node allocation/i), "single");
+    await user.type(screen.getByLabelText(/instances/i), "1");
+    await user.type(screen.getByLabelText(/vcpus per instance/i), "8");
+    await user.type(screen.getByLabelText(/host memory per instance/i), "16");
+
+    await user.type(
+      screen.getByLabelText(/vllm args/i),
+      "--dtype bfloat16{enter}--max-model-len 25600",
+    );
+    await user.type(screen.getByLabelText(/env vars/i), "VLLM_CPU_KVCACHE_SPACE=8{enter}FOO=bar");
+
+    const preview = screen.getByText(/vllm_args:/).closest("pre");
+    expect(preview?.textContent).toMatch(/--dtype bfloat16/);
+    expect(preview?.textContent).toMatch(/--max-model-len 25600/);
+    expect(preview?.textContent).toMatch(/VLLM_CPU_KVCACHE_SPACE: ['"]?8['"]?/);
+    expect(preview?.textContent).toMatch(/FOO: bar/);
   });
 });
