@@ -1,4 +1,4 @@
-These are the options available when a user selects different engine sources in NAI 2.8. For non-validated models or any model imported via Hugging Face URL (not taken from the model catalog)
+These are the options available when a user selects different engine sources in NAI 2.8 (vLLM Sandbox). For non-validated models or any model imported via Hugging Face URL (not taken from the model catalog)
 
 If Engine Source = NAI:
     1. Enable KV Cache Aware Routing - True or False
