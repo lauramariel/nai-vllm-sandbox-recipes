@@ -1,5 +1,6 @@
 These are the options available when a user selects different engine sources in NAI 2.8 (vLLM Sandbox). For non-validated models or any model imported via Hugging Face URL (not taken from the model catalog)
 
+```
 If Engine Source = NAI:
     1. Enable KV Cache Aware Routing - True or False
     2. Enable KV Cache Offloading - True or False
@@ -59,5 +60,5 @@ If Engine Source = Import from other registry is selected:
             e.g.: 
                 VLLM_CPU_KVCACHE_SPACE=8
                 TIKTOKEN_ENCODINGS_BASE=/path/to/your/encodings
-
+```
 
