@@ -58,6 +58,7 @@ describe("buildRecipeIndex", () => {
     expect(llama).toBeDefined();
     expect(llama).toMatchObject({
       model: "meta-llama/Llama-3.3-70B-Instruct",
+      nai_version: "2.8",
       engine_source: "nai",
       gpu_model: "H100-80GB",
       gpu_count: 4,

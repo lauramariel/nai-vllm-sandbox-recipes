@@ -9,6 +9,7 @@ const recipes: RecipeIndexEntry[] = [
     slug: "llama",
     model: "meta-llama/Llama-3.3-70B-Instruct",
     title: "Llama 3.3 70B",
+    nai_version: "2.8",
     engine_source: "nai",
     gpu_model: "H100-80GB",
     gpu_count: 4,
@@ -23,6 +24,7 @@ const recipes: RecipeIndexEntry[] = [
     slug: "qwen",
     model: "Qwen/Qwen2.5-32B-Instruct",
     title: "Qwen2.5 32B",
+    nai_version: "2.7",
     engine_source: "community-vllm-registry",
     gpu_model: "A100-80GB",
     gpu_count: 2,
@@ -50,6 +52,18 @@ describe("BrowseIndex", () => {
     await user.click(screen.getByRole("button", { name: /reset filters/i }));
     expect(screen.getByText("Llama 3.3 70B")).toBeInTheDocument();
     expect(screen.getByText("Qwen2.5 32B")).toBeInTheDocument();
+  });
+
+  it("filters by NAI version", async () => {
+    const user = userEvent.setup();
+    render(<BrowseIndex recipes={recipes} />);
+
+    await user.selectOptions(screen.getByLabelText(/nai version/i), "2.7");
+    expect(screen.queryByText("Llama 3.3 70B")).not.toBeInTheDocument();
+    expect(screen.getByText("Qwen2.5 32B")).toBeInTheDocument();
+
+    await user.selectOptions(screen.getByLabelText(/nai version/i), "");
+    expect(screen.getByText("Llama 3.3 70B")).toBeInTheDocument();
   });
 
   it("Reset filters is disabled when no filters are active", async () => {

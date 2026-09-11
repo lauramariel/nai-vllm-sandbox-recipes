@@ -17,6 +17,7 @@ export interface RecipeIndexEntry {
   slug: string;
   model: string;
   title: string;
+  nai_version: string;
   engine_source: Recipe["engine_source"];
   gpu_model: string;
   gpu_count: number;
@@ -70,6 +71,7 @@ export function buildRecipeIndex(recipes: LoadedRecipe[]): RecipeIndexEntry[] {
     slug,
     model: recipe.model,
     title: recipe.title ?? recipe.model,
+    nai_version: recipe.nai_version,
     engine_source: recipe.engine_source,
     gpu_model: recipe.hardware.gpu_model,
     gpu_count: recipe.hardware.gpu_count,

@@ -14,6 +14,7 @@ function uniqueSorted<T>(values: T[]): T[] {
 export function BrowseIndex({ recipes }: { recipes: RecipeIndexEntry[] }) {
   const [search, setSearch] = useState("");
   const [engineSource, setEngineSource] = useState<string>("");
+  const [naiVersion, setNaiVersion] = useState<string>("");
   const [gpuModel, setGpuModel] = useState<string>("");
   const [gpuCount, setGpuCount] = useState<string>("");
   const [nodeAllocation, setNodeAllocation] = useState<string>("");
@@ -21,12 +22,14 @@ export function BrowseIndex({ recipes }: { recipes: RecipeIndexEntry[] }) {
   const [kvOffloadingOnly, setKvOffloadingOnly] = useState(false);
   const [kvRoutingOnly, setKvRoutingOnly] = useState(false);
 
+  const naiVersions = useMemo(() => uniqueSorted(recipes.map((r) => r.nai_version)), [recipes]);
   const gpuModels = useMemo(() => uniqueSorted(recipes.map((r) => r.gpu_model)), [recipes]);
   const gpuCounts = useMemo(() => uniqueSorted(recipes.map((r) => r.gpu_count)), [recipes]);
 
   const filtersActive =
     search !== "" ||
     engineSource !== "" ||
+    naiVersion !== "" ||
     gpuModel !== "" ||
     gpuCount !== "" ||
     nodeAllocation !== "" ||
@@ -37,6 +40,7 @@ export function BrowseIndex({ recipes }: { recipes: RecipeIndexEntry[] }) {
   function resetFilters() {
     setSearch("");
     setEngineSource("");
+    setNaiVersion("");
     setGpuModel("");
     setGpuCount("");
     setNodeAllocation("");
@@ -54,6 +58,7 @@ export function BrowseIndex({ recipes }: { recipes: RecipeIndexEntry[] }) {
         if (!haystack.includes(needle)) return false;
       }
       if (engineSource !== "" && r.engine_source !== engineSource) return false;
+      if (naiVersion !== "" && r.nai_version !== naiVersion) return false;
       if (gpuModel !== "" && r.gpu_model !== gpuModel) return false;
       if (gpuCount !== "" && String(r.gpu_count) !== gpuCount) return false;
       if (nodeAllocation !== "" && r.node_allocation !== nodeAllocation) return false;
@@ -66,6 +71,7 @@ export function BrowseIndex({ recipes }: { recipes: RecipeIndexEntry[] }) {
     recipes,
     search,
     engineSource,
+    naiVersion,
     gpuModel,
     gpuCount,
     nodeAllocation,
@@ -93,7 +99,7 @@ export function BrowseIndex({ recipes }: { recipes: RecipeIndexEntry[] }) {
           aria-label="Search recipes"
         />
 
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
           <div>
             <label className={labelClass} htmlFor="filter-engine-source">
               Engine source
@@ -108,6 +114,25 @@ export function BrowseIndex({ recipes }: { recipes: RecipeIndexEntry[] }) {
               <option value="nai">NAI</option>
               <option value="community-vllm-registry">Community vLLM registry</option>
               <option value="other-registry">Other registry</option>
+            </select>
+          </div>
+
+          <div>
+            <label className={labelClass} htmlFor="filter-nai-version">
+              NAI version
+            </label>
+            <select
+              id="filter-nai-version"
+              className={inputClass}
+              value={naiVersion}
+              onChange={(e) => setNaiVersion(e.target.value)}
+            >
+              <option value="">All</option>
+              {naiVersions.map((v) => (
+                <option key={v} value={v}>
+                  {v}
+                </option>
+              ))}
             </select>
           </div>
 
@@ -181,7 +206,7 @@ export function BrowseIndex({ recipes }: { recipes: RecipeIndexEntry[] }) {
               checked={kvOffloadingOnly}
               onChange={(e) => setKvOffloadingOnly(e.target.checked)}
             />
-            Uses KV offloading
+            Uses KV cache offloading
           </label>
           <label className="flex items-center gap-2">
             <input
