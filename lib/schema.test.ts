@@ -53,6 +53,22 @@ describe("recipeSubmissionSchema", () => {
     }
   });
 
+  it("defaults notes to an empty string when omitted", () => {
+    const result = recipeSubmissionSchema.safeParse({ ...validSubmission, nai_advanced: undefined });
+    expect(result.success).toBe(true);
+    if (result.success) expect(result.data.notes).toBe("");
+  });
+
+  it("keeps a provided notes string", () => {
+    const result = recipeSubmissionSchema.safeParse({
+      ...validSubmission,
+      nai_advanced: undefined,
+      notes: "Worked great on the first try.",
+    });
+    expect(result.success).toBe(true);
+    if (result.success) expect(result.data.notes).toBe("Worked great on the first try.");
+  });
+
   it("strips client-supplied submitted_by / submitted_at", () => {
     const result = recipeSubmissionSchema.safeParse({
       ...validSubmission,

@@ -187,8 +187,15 @@ function refineEngineCrossFields(data: EngineCrossFields, ctx: z.RefinementCtx) 
   }
 }
 
+// notes is deliberately not part of recipeShape: it's the free-form
+// Markdown body (see design doc "The form", item 7), not a frontmatter
+// field, so it must be absent from recipeSchema (real recipe files never
+// have a `notes:` frontmatter key). It's only meaningful on the client
+// submission payload — buildRecipe() in lib/serialize.ts silently drops
+// it when assembling the persisted Recipe, matching how submitted_by /
+// submitted_at are silently stripped in the other direction.
 export const recipeSubmissionSchema = z
-  .object(recipeShape)
+  .object({ ...recipeShape, notes: z.string().default("") })
   .superRefine((data, ctx) => refineEngineCrossFields(data, ctx));
 export type RecipeSubmission = z.infer<typeof recipeSubmissionSchema>;
 

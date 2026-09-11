@@ -48,6 +48,14 @@ describe("buildRecipe", () => {
     expect(recipe).toEqual(validRecipe);
   });
 
+  it("drops notes — it belongs in the Markdown body, not the frontmatter", () => {
+    const recipe = buildRecipe(
+      { ...validSubmission, notes: "some notes" },
+      { submitted_by: "laura-m", submitted_at: "2026-09-10" },
+    );
+    expect(recipe).not.toHaveProperty("notes");
+  });
+
   it("server fields always overwrite client-supplied values", () => {
     const submissionWithSpoofedFields = {
       ...validSubmission,
