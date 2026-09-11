@@ -24,10 +24,15 @@ describe("loadRecipes", () => {
     expect(loadRecipes(path.join(FIXTURES_DIR, "does-not-exist"))).toEqual([]);
   });
 
-  it("returns an empty array for the real (not-yet-populated) /recipes dir", () => {
-    // /recipes/ holds only real, merged submissions. It's expected to be
-    // empty until the first one lands — see recipes/README.md.
-    expect(loadRecipes()).toEqual([]);
+  it("loads every real recipe in /recipes cleanly", () => {
+    // /recipes/ holds real, merged submissions and grows over time (see
+    // recipes/README.md), so this doesn't assert a specific count/content
+    // — just that whatever's there loads without throwing.
+    const recipes = loadRecipes();
+    for (const { slug, recipe } of recipes) {
+      expect(slug).toMatch(/^[a-z0-9-]+$/);
+      expect(recipe.model).toBeTruthy();
+    }
   });
 
   it("ignores recipes/README.md rather than treating it as a recipe", () => {
