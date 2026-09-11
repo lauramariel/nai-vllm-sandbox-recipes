@@ -17,7 +17,7 @@ export default async function RecipeDetailPage(props: PageProps<"/recipes/[slug]
   if (!found) notFound();
 
   const { recipe, notes } = found;
-  const vllmArgsText = recipe.vllm_args.join(" ");
+  const vllmArgsText = recipe.vllm_args.join("\n");
   const envVarsText = Object.entries(recipe.env_vars)
     .map(([key, value]) => `${key}=${value}`)
     .join("\n");

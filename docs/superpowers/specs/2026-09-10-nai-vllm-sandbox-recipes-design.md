@@ -329,8 +329,9 @@ Renders the full list from the index JSON; all filtering is client-side
   + date.
 - Engine section: source, `engine_tag` / `engine_image_url` if present,
   `kv_cache_aware_routing`.
-- Config blocks with copy buttons: one for vLLM args (space-joined,
-  shell-ready), one for env vars (`KEY=value` lines).
+- Config blocks with copy buttons: one for vLLM args (one per line,
+  matching the submission form's textarea), one for env vars (`KEY=value`
+  lines).
 - Hardware table.
 - Advanced NAI settings, if present.
 - Rendered Markdown notes (sanitized pipeline, no raw HTML).

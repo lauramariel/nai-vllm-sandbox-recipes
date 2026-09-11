@@ -26,6 +26,27 @@ export function BrowseIndex({ recipes }: { recipes: RecipeIndexEntry[] }) {
   const gpuModels = useMemo(() => uniqueSorted(recipes.map((r) => r.gpu_model)), [recipes]);
   const gpuCounts = useMemo(() => uniqueSorted(recipes.map((r) => r.gpu_count)), [recipes]);
 
+  const filtersActive =
+    search !== "" ||
+    engineSource !== "" ||
+    gpuModel !== "" ||
+    gpuCount !== "" ||
+    nodeAllocation !== "" ||
+    specDecodingOnly ||
+    kvOffloadingOnly ||
+    kvRoutingOnly;
+
+  function resetFilters() {
+    setSearch("");
+    setEngineSource("");
+    setGpuModel("");
+    setGpuCount("");
+    setNodeAllocation("");
+    setSpecDecodingOnly(false);
+    setKvOffloadingOnly(false);
+    setKvRoutingOnly(false);
+  }
+
   const filtered = useMemo(() => {
     const needle = search.trim().toLowerCase();
     return recipes.filter((r) => {
@@ -150,7 +171,7 @@ export function BrowseIndex({ recipes }: { recipes: RecipeIndexEntry[] }) {
           </div>
         </div>
 
-        <div className="flex flex-wrap gap-4 text-sm">
+        <div className="flex flex-wrap items-center gap-4 text-sm">
           <label className="flex items-center gap-2">
             <input
               type="checkbox"
@@ -175,6 +196,14 @@ export function BrowseIndex({ recipes }: { recipes: RecipeIndexEntry[] }) {
             />
             KV cache aware routing
           </label>
+          <button
+            type="button"
+            onClick={resetFilters}
+            disabled={!filtersActive}
+            className="ml-auto rounded-md border border-gray-300 px-3 py-1 text-sm font-medium cursor-pointer hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:hover:bg-gray-800"
+          >
+            Reset filters
+          </button>
         </div>
       </div>
 
@@ -183,7 +212,12 @@ export function BrowseIndex({ recipes }: { recipes: RecipeIndexEntry[] }) {
           {recipes.length === 0 ? (
             <p>No recipes yet.</p>
           ) : (
-            <p>No recipes match your filters.</p>
+            <p>
+              No recipes match your filters.{" "}
+              <button type="button" onClick={resetFilters} className="underline cursor-pointer">
+                Reset filters
+              </button>
+            </p>
           )}
           <Link href="/submit" className="underline">
             Submit a recipe
