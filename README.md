@@ -10,6 +10,9 @@ Next.js (App Router), no database. `lib/schema.ts` (Zod) is the single
 contract shared by the submission form, the submit API, the build-time
 recipe loader, and CI.
 
+Want to add a recipe? See [`CONTRIBUTING.md`](CONTRIBUTING.md) — via the
+web form, or by opening a PR with a hand-written file.
+
 ## Requirements
 
 Node 20+ (see `.nvmrc`). If you use `nvm`, run `nvm use` in this directory.
