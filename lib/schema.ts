@@ -14,6 +14,16 @@ export const NAI_VERSION_REGEX = /^\d+(\.\d+)+$/;
 export const GITHUB_HANDLE_REGEX = /^[A-Za-z0-9](?:[A-Za-z0-9-]{0,37}[A-Za-z0-9])?$/;
 export const ISO_DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 
+// YAML auto-types unquoted "2.8" as a number and unquoted "2026-09-10" as a
+// Date (YAML 1.1 timestamp). serializeRecipe always quotes these, but a
+// hand-edited recipe file easily won't — coerce back to string before
+// validating so an unquoted value doesn't fail with a confusing type error.
+function coerceToString(value: unknown): unknown {
+  if (value instanceof Date) return value.toISOString().slice(0, 10);
+  if (typeof value === "number") return String(value);
+  return value;
+}
+
 export const engineSourceSchema = z.enum([
   "nai",
   "community-vllm-registry",
@@ -63,9 +73,10 @@ const recipeShape = {
     .string()
     .regex(MODEL_ID_REGEX, "model must be a Hugging Face repo id, e.g. org/name"),
   title: z.string().min(1).optional(),
-  nai_version: z
-    .string()
-    .regex(NAI_VERSION_REGEX, "nai_version must look like a version number, e.g. 2.8"),
+  nai_version: z.preprocess(
+    coerceToString,
+    z.string().regex(NAI_VERSION_REGEX, "nai_version must look like a version number, e.g. 2.8"),
+  ),
   engine_source: engineSourceSchema,
   engine_tag: z.string().min(1).optional(),
   engine_image_url: z.string().min(1).optional(),
@@ -188,7 +199,10 @@ export const recipeSchema = z
   .object({
     ...recipeShape,
     submitted_by: z.string().regex(GITHUB_HANDLE_REGEX, "submitted_by must be a GitHub handle"),
-    submitted_at: z.string().regex(ISO_DATE_REGEX, "submitted_at must be an ISO date (YYYY-MM-DD)"),
+    submitted_at: z.preprocess(
+      coerceToString,
+      z.string().regex(ISO_DATE_REGEX, "submitted_at must be an ISO date (YYYY-MM-DD)"),
+    ),
   })
   .superRefine((data, ctx) => refineEngineCrossFields(data, ctx));
 export type Recipe = z.infer<typeof recipeSchema>;

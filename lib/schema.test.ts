@@ -195,4 +195,27 @@ describe("recipeSchema", () => {
     });
     expect(result.success).toBe(false);
   });
+
+  it("coerces a JS Date for submitted_at (YAML auto-types unquoted dates)", () => {
+    const result = recipeSchema.safeParse({
+      ...validSubmission,
+      nai_advanced: undefined,
+      submitted_by: "laura-m",
+      submitted_at: new Date("2026-09-10T00:00:00.000Z"),
+    });
+    expect(result.success).toBe(true);
+    if (result.success) expect(result.data.submitted_at).toBe("2026-09-10");
+  });
+
+  it("coerces a number for nai_version (YAML auto-types unquoted 2.8)", () => {
+    const result = recipeSchema.safeParse({
+      ...validSubmission,
+      nai_advanced: undefined,
+      nai_version: 2.8,
+      submitted_by: "laura-m",
+      submitted_at: "2026-09-10",
+    });
+    expect(result.success).toBe(true);
+    if (result.success) expect(result.data.nai_version).toBe("2.8");
+  });
 });
