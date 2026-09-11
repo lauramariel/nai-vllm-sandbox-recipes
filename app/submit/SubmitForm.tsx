@@ -6,6 +6,7 @@ import { recipeSubmissionSchema } from "@/lib/schema";
 import { buildRecipe, serializeRecipe } from "@/lib/serialize";
 import { normalizeModelInput } from "@/lib/normalize-model";
 import { parseEnvVarsText, parseVllmArgsText } from "@/lib/parse-form-text";
+import { buttonPrimaryClass, cardClass, inputClass, labelClass, mutedTextClass, sectionHeadingClass } from "../ui";
 
 interface FormValues {
   model: string;
@@ -124,12 +125,6 @@ function toPayload(values: FormValues): unknown {
   return payload;
 }
 
-const inputClass =
-  "w-full rounded-md border border-gray-300 px-3 py-1.5 dark:border-gray-600 dark:bg-gray-900";
-const labelClass = "block text-sm font-medium mb-1";
-const primaryButtonClass =
-  "rounded-md bg-blue-600 px-4 py-2 font-medium text-white cursor-pointer hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50";
-
 export function SubmitForm({ login }: { login: string }) {
   const { register, control, handleSubmit } = useForm<FormValues>({ defaultValues });
   const values = useWatch({ control });
@@ -180,10 +175,10 @@ export function SubmitForm({ login }: { login: string }) {
   const engineSource = values.engine_source ?? "nai";
 
   return (
-    <div className="grid gap-8 md:grid-cols-2">
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+    <div className="grid gap-6 lg:grid-cols-2">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
         {/* 1. Model / title / nai_version */}
-        <section className="space-y-3">
+        <section className={`${cardClass} space-y-3`}>
           <div>
             <label className={labelClass} htmlFor="model">
               Model (Hugging Face repo id or URL)
@@ -210,7 +205,8 @@ export function SubmitForm({ login }: { login: string }) {
         </section>
 
         {/* 2. Engine source */}
-        <section className="space-y-3">
+        <section className={`${cardClass} space-y-3`}>
+          <h2 className={sectionHeadingClass}>Engine</h2>
           <div>
             <label className={labelClass} htmlFor="engine_source">
               Engine source
@@ -237,97 +233,104 @@ export function SubmitForm({ login }: { login: string }) {
               <input id="engine_image_url" className={inputClass} {...register("engine_image_url")} />
             </div>
           )}
-        </section>
-
-        {/* 3. KV cache aware routing */}
-        <section>
-          <label className="flex items-center gap-2">
+          <label className="flex items-center gap-2 text-sm">
             <input type="checkbox" {...register("kv_cache_aware_routing")} />
             KV cache aware routing
           </label>
         </section>
 
-        {/* 4. vLLM args / env vars — paste multiple lines at once */}
-        <section className="space-y-2">
-          <label className={labelClass} htmlFor="vllm_args_text">
-            vLLM args (one per line)
-          </label>
-          <textarea
-            id="vllm_args_text"
-            rows={4}
-            className={`${inputClass} font-mono`}
-            placeholder={"--dtype bfloat16\n--max-model-len 25600"}
-            {...register("vllm_args_text")}
-          />
-        </section>
-
-        <section className="space-y-2">
-          <label className={labelClass} htmlFor="env_vars_text">
-            Env vars (KEY=value, one per line)
-          </label>
-          <textarea
-            id="env_vars_text"
-            rows={4}
-            className={`${inputClass} font-mono`}
-            placeholder={"VLLM_CPU_KVCACHE_SPACE=8\nTIKTOKEN_ENCODINGS_BASE=/path/to/your/encodings"}
-            {...register("env_vars_text")}
-          />
-        </section>
-
-        {/* 5. Hardware */}
-        <section className="space-y-3">
-          <h2 className="font-semibold">Hardware</h2>
+        {/* 3. vLLM args / env vars — paste multiple lines at once */}
+        <section className={`${cardClass} space-y-4`}>
           <div>
-            <label className={labelClass} htmlFor="gpu_model">
-              GPU model
+            <label className={labelClass} htmlFor="vllm_args_text">
+              vLLM args (one per line)
             </label>
-            <input id="gpu_model" className={inputClass} placeholder="H100-80GB" {...register("hardware.gpu_model")} />
+            <textarea
+              id="vllm_args_text"
+              rows={4}
+              className={`${inputClass} font-mono`}
+              placeholder={"--dtype bfloat16\n--max-model-len 25600"}
+              {...register("vllm_args_text")}
+            />
           </div>
           <div>
-            <label className={labelClass} htmlFor="gpu_count">
-              GPU count
+            <label className={labelClass} htmlFor="env_vars_text">
+              Env vars (KEY=value, one per line)
             </label>
-            <input id="gpu_count" className={inputClass} {...register("hardware.gpu_count")} />
-          </div>
-          <div>
-            <label className={labelClass} htmlFor="node_allocation">
-              Node allocation
-            </label>
-            <select id="node_allocation" className={inputClass} {...register("hardware.node_allocation")}>
-              <option value="">—</option>
-              <option value="single">Single</option>
-              <option value="multi">Multi</option>
-            </select>
-          </div>
-          <div>
-            <label className={labelClass} htmlFor="instances">
-              Instances
-            </label>
-            <input id="instances" className={inputClass} {...register("hardware.instances")} />
-          </div>
-          <div>
-            <label className={labelClass} htmlFor="vcpus_per_instance">
-              vCPUs per instance
-            </label>
-            <input id="vcpus_per_instance" className={inputClass} {...register("hardware.vcpus_per_instance")} />
-          </div>
-          <div>
-            <label className={labelClass} htmlFor="host_memory_per_instance_gib">
-              Host memory per instance, GiB
-            </label>
-            <input
-              id="host_memory_per_instance_gib"
-              className={inputClass}
-              {...register("hardware.host_memory_per_instance_gib")}
+            <textarea
+              id="env_vars_text"
+              rows={4}
+              className={`${inputClass} font-mono`}
+              placeholder={"VLLM_CPU_KVCACHE_SPACE=8\nTIKTOKEN_ENCODINGS_BASE=/path/to/your/encodings"}
+              {...register("env_vars_text")}
             />
           </div>
         </section>
 
-        {/* 6. Advanced NAI settings — only meaningful when engine_source == nai */}
-        <fieldset disabled={engineSource !== "nai"} className="space-y-3 rounded-md border border-gray-300 p-3 disabled:opacity-50 dark:border-gray-600">
-          <legend className="font-semibold px-1">Advanced NAI settings</legend>
+        {/* 4. Hardware */}
+        <section className={`${cardClass} space-y-3`}>
+          <h2 className={sectionHeadingClass}>Hardware</h2>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className={labelClass} htmlFor="gpu_model">
+                GPU model
+              </label>
+              <input
+                id="gpu_model"
+                className={inputClass}
+                placeholder="H100-80GB"
+                {...register("hardware.gpu_model")}
+              />
+            </div>
+            <div>
+              <label className={labelClass} htmlFor="gpu_count">
+                GPU count
+              </label>
+              <input id="gpu_count" className={inputClass} {...register("hardware.gpu_count")} />
+            </div>
+            <div>
+              <label className={labelClass} htmlFor="node_allocation">
+                Node allocation
+              </label>
+              <select id="node_allocation" className={inputClass} {...register("hardware.node_allocation")}>
+                <option value="">—</option>
+                <option value="single">Single</option>
+                <option value="multi">Multi</option>
+              </select>
+            </div>
+            <div>
+              <label className={labelClass} htmlFor="instances">
+                Instances
+              </label>
+              <input id="instances" className={inputClass} {...register("hardware.instances")} />
+            </div>
+            <div>
+              <label className={labelClass} htmlFor="vcpus_per_instance">
+                vCPUs per instance
+              </label>
+              <input id="vcpus_per_instance" className={inputClass} {...register("hardware.vcpus_per_instance")} />
+            </div>
+            <div>
+              <label className={labelClass} htmlFor="host_memory_per_instance_gib">
+                Host memory per instance, GiB
+              </label>
+              <input
+                id="host_memory_per_instance_gib"
+                className={inputClass}
+                {...register("hardware.host_memory_per_instance_gib")}
+              />
+            </div>
+          </div>
+        </section>
 
-          <label className="flex items-center gap-2">
+        {/* 5. Advanced NAI settings — only meaningful when engine_source == nai */}
+        <fieldset
+          disabled={engineSource !== "nai"}
+          className={`${cardClass} space-y-3 disabled:opacity-50`}
+        >
+          <legend className={`${sectionHeadingClass} px-1`}>Advanced NAI settings</legend>
+
+          <label className="flex items-center gap-2 text-sm">
             <input type="checkbox" {...register("kv_cache_offloading_enabled")} />
             Enable KV cache offloading
           </label>
@@ -344,12 +347,12 @@ export function SubmitForm({ login }: { login: string }) {
             </div>
           )}
 
-          <label className="flex items-center gap-2">
+          <label className="flex items-center gap-2 text-sm">
             <input type="checkbox" {...register("speculative_decoding_enabled")} />
             Enable speculative decoding
           </label>
           {values.speculative_decoding_enabled && (
-            <div className="space-y-3">
+            <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className={labelClass} htmlFor="speculation_length_tokens">
                   Speculation length, tokens (default 5)
@@ -374,56 +377,65 @@ export function SubmitForm({ login }: { login: string }) {
           )}
         </fieldset>
 
-        {/* 7. Notes */}
-        <section>
+        {/* 6. Notes */}
+        <section className={`${cardClass} space-y-3`}>
           <label className={labelClass} htmlFor="notes">
             Notes
           </label>
           <textarea id="notes" rows={6} className={inputClass} {...register("notes")} />
         </section>
 
-        {/* 8. Validation + submit */}
+        {/* 7. Validation + submit */}
         {!parsed.success && (
-          <ul className="list-inside list-disc text-sm text-red-600 dark:text-red-400">
-            {parsed.error.issues.slice(0, 8).map((issue, i) => (
-              <li key={i}>
-                {issue.path.join(".")}: {issue.message}
-              </li>
-            ))}
-          </ul>
+          <div className={`${cardClass} border-red-200 dark:border-red-900`}>
+            <ul className="list-inside list-disc text-sm text-red-600 dark:text-red-400">
+              {parsed.error.issues.slice(0, 8).map((issue, i) => (
+                <li key={i}>
+                  {issue.path.join(".")}: {issue.message}
+                </li>
+              ))}
+            </ul>
+          </div>
         )}
 
         <button
           type="submit"
           disabled={!parsed.success || submitState.status === "submitting"}
-          className={primaryButtonClass}
+          className={buttonPrimaryClass}
         >
           {submitState.status === "submitting" ? "Submitting…" : "Submit recipe"}
         </button>
 
         {submitState.status === "success" && (
-          <p className="text-green-700 dark:text-green-400">
+          <p className="text-sm text-green-700 dark:text-green-400">
             Submitted →{" "}
-            <a className="underline" href={submitState.prUrl} target="_blank" rel="noreferrer">
+            <a
+              className="underline"
+              href={submitState.prUrl}
+              target="_blank"
+              rel="noreferrer"
+            >
               {submitState.prUrl}
             </a>
           </p>
         )}
         {submitState.status === "error" && (
-          <p className="text-red-600 dark:text-red-400">{submitState.message}</p>
+          <p className="text-sm text-red-600 dark:text-red-400">{submitState.message}</p>
         )}
       </form>
 
       {/* Preview pane */}
-      <div>
-        <h2 className="font-semibold mb-2">Preview</h2>
-        {previewMd ? (
-          <pre className="overflow-auto rounded-md border border-gray-300 bg-gray-50 p-3 text-sm dark:border-gray-600 dark:bg-gray-900">
-            {previewMd}
-          </pre>
-        ) : (
-          <p className="text-sm text-gray-500">Fix the validation errors to see a preview.</p>
-        )}
+      <div className="lg:sticky lg:top-6 lg:self-start">
+        <div className={cardClass}>
+          <h2 className={`${sectionHeadingClass} mb-2`}>Preview</h2>
+          {previewMd ? (
+            <pre className="overflow-auto rounded-lg border border-gray-200 bg-gray-50 p-3 font-mono text-sm dark:border-gray-800 dark:bg-gray-950">
+              {previewMd}
+            </pre>
+          ) : (
+            <p className={mutedTextClass}>Fix the validation errors to see a preview.</p>
+          )}
+        </div>
       </div>
     </div>
   );

@@ -2,10 +2,14 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { loadRecipes } from "@/lib/recipes";
 import { renderNotesHtml } from "@/lib/render-notes";
-import { ENGINE_SOURCE_LABELS } from "@/lib/labels";
+import { ENGINE_SOURCE_BADGE_COLOR, ENGINE_SOURCE_LABELS } from "@/lib/labels";
+import { Badge } from "../../Badge";
+import { cardClass, mutedTextClass, sectionHeadingClass } from "../../ui";
 import { CopyButton } from "./CopyButton";
 
-const dtClass = "text-gray-500";
+const dtClass = "text-gray-500 dark:text-gray-400";
+const codeBlockClass =
+  "overflow-auto rounded-lg border border-gray-200 bg-gray-50 p-3 font-mono text-sm dark:border-gray-800 dark:bg-gray-950";
 
 export function generateStaticParams() {
   return loadRecipes().map(({ slug }) => ({ slug }));
@@ -28,30 +32,35 @@ export default async function RecipeDetailPage(props: PageProps<"/recipes/[slug]
   const editUrl = `https://github.com/${owner}/${repo}/edit/main/recipes/${slug}.md`;
 
   return (
-    <main className="mx-auto max-w-3xl space-y-8 p-8">
-      <Link href="/" className="text-sm underline">
+    <main className="mx-auto max-w-3xl space-y-6 p-8">
+      <Link href="/" className="text-sm text-blue-600 hover:underline dark:text-blue-400">
         ← Back to all recipes
       </Link>
 
-      <header className="space-y-1">
-        <h1 className="text-2xl font-semibold">{recipe.title ?? recipe.model}</h1>
+      <header className={`${cardClass} space-y-2`}>
+        <div className="flex flex-wrap items-center gap-3">
+          <h1 className="text-2xl font-bold tracking-tight">{recipe.title ?? recipe.model}</h1>
+          <Badge color={ENGINE_SOURCE_BADGE_COLOR[recipe.engine_source]}>
+            {ENGINE_SOURCE_LABELS[recipe.engine_source]}
+          </Badge>
+        </div>
         <p>
           <a
             href={`https://huggingface.co/${recipe.model}`}
-            className="underline"
+            className="text-blue-600 hover:underline dark:text-blue-400"
             target="_blank"
             rel="noreferrer"
           >
             {recipe.model}
           </a>
         </p>
-        <p className="text-sm text-gray-600 dark:text-gray-400">
+        <p className={mutedTextClass}>
           NAI {recipe.nai_version} · submitted by @{recipe.submitted_by} on {recipe.submitted_at}
         </p>
       </header>
 
-      <section>
-        <h2 className="font-semibold mb-2">Engine</h2>
+      <section className={`${cardClass} space-y-3`}>
+        <h2 className={sectionHeadingClass}>Engine</h2>
         <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm">
           <dt className={dtClass}>Source</dt>
           <dd>{ENGINE_SOURCE_LABELS[recipe.engine_source]}</dd>
@@ -72,35 +81,31 @@ export default async function RecipeDetailPage(props: PageProps<"/recipes/[slug]
         </dl>
       </section>
 
-      <section>
-        <div className="flex items-center justify-between mb-2">
-          <h2 className="font-semibold">vLLM args</h2>
+      <section className={`${cardClass} space-y-3`}>
+        <div className="flex items-center justify-between">
+          <h2 className={sectionHeadingClass}>vLLM args</h2>
           <CopyButton text={vllmArgsText} />
         </div>
-        <pre className="overflow-auto rounded-md border border-gray-300 bg-gray-50 p-3 text-sm dark:border-gray-600 dark:bg-gray-900">
-          {vllmArgsText || "(none — platform defaults)"}
-        </pre>
+        <pre className={codeBlockClass}>{vllmArgsText || "(none — platform defaults)"}</pre>
       </section>
 
-      <section>
-        <div className="flex items-center justify-between mb-2">
-          <h2 className="font-semibold">Env vars</h2>
+      <section className={`${cardClass} space-y-3`}>
+        <div className="flex items-center justify-between">
+          <h2 className={sectionHeadingClass}>Env vars</h2>
           <CopyButton text={envVarsText} />
         </div>
-        <pre className="overflow-auto rounded-md border border-gray-300 bg-gray-50 p-3 text-sm dark:border-gray-600 dark:bg-gray-900">
-          {envVarsText || "(none)"}
-        </pre>
+        <pre className={codeBlockClass}>{envVarsText || "(none)"}</pre>
       </section>
 
-      <section>
-        <h2 className="font-semibold mb-2">Hardware</h2>
+      <section className={`${cardClass} space-y-3`}>
+        <h2 className={sectionHeadingClass}>Hardware</h2>
         <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm">
           <dt className={dtClass}>GPU model</dt>
           <dd>{recipe.hardware.gpu_model}</dd>
           <dt className={dtClass}>GPU count</dt>
           <dd>{recipe.hardware.gpu_count}</dd>
           <dt className={dtClass}>Node allocation</dt>
-          <dd>{recipe.hardware.node_allocation}</dd>
+          <dd className="capitalize">{recipe.hardware.node_allocation}</dd>
           <dt className={dtClass}>Instances</dt>
           <dd>{recipe.hardware.instances}</dd>
           <dt className={dtClass}>vCPUs per instance</dt>
@@ -111,8 +116,8 @@ export default async function RecipeDetailPage(props: PageProps<"/recipes/[slug]
       </section>
 
       {recipe.nai_advanced && (
-        <section>
-          <h2 className="font-semibold mb-2">Advanced NAI settings</h2>
+        <section className={`${cardClass} space-y-3`}>
+          <h2 className={sectionHeadingClass}>Advanced NAI settings</h2>
           <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm">
             {recipe.nai_advanced.kv_cache_offloading && (
               <>
@@ -138,8 +143,8 @@ export default async function RecipeDetailPage(props: PageProps<"/recipes/[slug]
         </section>
       )}
 
-      <section>
-        <h2 className="font-semibold mb-2">Notes</h2>
+      <section className={`${cardClass} space-y-3`}>
+        <h2 className={sectionHeadingClass}>Notes</h2>
         {notes ? (
           <div
             className="prose prose-sm dark:prose-invert max-w-none"
@@ -148,12 +153,17 @@ export default async function RecipeDetailPage(props: PageProps<"/recipes/[slug]
             dangerouslySetInnerHTML={{ __html: notesHtml }}
           />
         ) : (
-          <p className="text-sm text-gray-500">No notes provided.</p>
+          <p className={mutedTextClass}>No notes provided.</p>
         )}
       </section>
 
       <div>
-        <a href={editUrl} className="text-sm underline" target="_blank" rel="noreferrer">
+        <a
+          href={editUrl}
+          className="text-sm text-blue-600 hover:underline dark:text-blue-400"
+          target="_blank"
+          rel="noreferrer"
+        >
           Edit / suggest a change on GitHub
         </a>
       </div>

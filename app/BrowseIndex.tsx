@@ -3,11 +3,9 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import type { RecipeIndexEntry } from "@/lib/recipes";
-import { ENGINE_SOURCE_LABELS } from "@/lib/labels";
-
-const inputClass =
-  "rounded-md border border-gray-300 px-3 py-1.5 dark:border-gray-600 dark:bg-gray-900";
-const labelClass = "block text-xs font-medium mb-1 text-gray-600 dark:text-gray-400";
+import { ENGINE_SOURCE_BADGE_COLOR, ENGINE_SOURCE_LABELS } from "@/lib/labels";
+import { Badge } from "./Badge";
+import { buttonSecondaryClass, cardClass, inputClass, labelClass, mutedTextClass } from "./ui";
 
 function uniqueSorted<T>(values: T[]): T[] {
   return Array.from(new Set(values)).sort();
@@ -78,27 +76,24 @@ export function BrowseIndex({ recipes }: { recipes: RecipeIndexEntry[] }) {
 
   return (
     <main className="mx-auto max-w-4xl space-y-6 p-8">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">NAI vLLM Sandbox Recipes</h1>
-        <Link
-          href="/submit"
-          className="rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium hover:bg-gray-100 dark:border-gray-600 dark:hover:bg-gray-800"
-        >
-          Submit a recipe
-        </Link>
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight">Browse recipes</h1>
+        <p className={mutedTextClass}>
+          {recipes.length} recipe{recipes.length === 1 ? "" : "s"} shared by the community.
+        </p>
       </div>
 
-      <div className="space-y-3">
+      <div className={`${cardClass} space-y-4`}>
         <input
           type="search"
-          className={`${inputClass} w-full`}
+          className={inputClass}
           placeholder="Search by model, org, or title…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           aria-label="Search recipes"
         />
 
-        <div className="flex flex-wrap gap-4">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
           <div>
             <label className={labelClass} htmlFor="filter-engine-source">
               Engine source
@@ -171,7 +166,7 @@ export function BrowseIndex({ recipes }: { recipes: RecipeIndexEntry[] }) {
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-4 text-sm">
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm">
           <label className="flex items-center gap-2">
             <input
               type="checkbox"
@@ -200,7 +195,7 @@ export function BrowseIndex({ recipes }: { recipes: RecipeIndexEntry[] }) {
             type="button"
             onClick={resetFilters}
             disabled={!filtersActive}
-            className="ml-auto rounded-md border border-gray-300 px-3 py-1 text-sm font-medium cursor-pointer hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:hover:bg-gray-800"
+            className={`${buttonSecondaryClass} ml-auto`}
           >
             Reset filters
           </button>
@@ -208,34 +203,37 @@ export function BrowseIndex({ recipes }: { recipes: RecipeIndexEntry[] }) {
       </div>
 
       {filtered.length === 0 ? (
-        <div className="rounded-md border border-gray-300 p-6 text-center text-sm text-gray-600 dark:border-gray-600 dark:text-gray-400">
+        <div className={`${cardClass} space-y-2 text-center`}>
           {recipes.length === 0 ? (
-            <p>No recipes yet.</p>
+            <p className={mutedTextClass}>No recipes yet.</p>
           ) : (
-            <p>
+            <p className={mutedTextClass}>
               No recipes match your filters.{" "}
-              <button type="button" onClick={resetFilters} className="underline cursor-pointer">
+              <button type="button" onClick={resetFilters} className="text-blue-600 underline dark:text-blue-400">
                 Reset filters
               </button>
             </p>
           )}
-          <Link href="/submit" className="underline">
+          <Link href="/submit" className="text-sm font-medium text-blue-600 underline dark:text-blue-400">
             Submit a recipe
           </Link>
         </div>
       ) : (
-        <ul className="divide-y divide-gray-200 dark:divide-gray-700">
+        <ul className="space-y-3">
           {filtered.map((r) => (
-            <li key={r.slug} className="py-3">
-              <Link href={`/recipes/${r.slug}`} className="flex flex-wrap items-center gap-3">
+            <li key={r.slug}>
+              <Link
+                href={`/recipes/${r.slug}`}
+                className={`${cardClass} flex flex-wrap items-center gap-3 transition-colors hover:border-blue-400 dark:hover:border-blue-600`}
+              >
                 <span className="font-medium">{r.title}</span>
-                <span className="text-sm text-gray-600 dark:text-gray-400">
+                <span className={mutedTextClass}>
                   {r.gpu_count}x {r.gpu_model}
                 </span>
-                <span className="rounded-full border border-gray-300 px-2 py-0.5 text-xs dark:border-gray-600">
+                <Badge color={ENGINE_SOURCE_BADGE_COLOR[r.engine_source]}>
                   {ENGINE_SOURCE_LABELS[r.engine_source]}
-                </span>
-                <span className="text-sm text-gray-500">
+                </Badge>
+                <span className={`${mutedTextClass} ml-auto`}>
                   @{r.submitted_by} · {r.submitted_at}
                 </span>
               </Link>

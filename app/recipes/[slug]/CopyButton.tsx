@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { buttonSecondaryClass } from "../../ui";
 
 export function CopyButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
@@ -8,7 +9,7 @@ export function CopyButton({ text }: { text: string }) {
   return (
     <button
       type="button"
-      className="rounded-md border border-gray-300 px-2 py-1 text-xs font-medium cursor-pointer hover:bg-gray-100 dark:border-gray-600 dark:hover:bg-gray-800"
+      className={`${buttonSecondaryClass} px-2.5 py-1 text-xs`}
       onClick={async () => {
         await navigator.clipboard.writeText(text);
         setCopied(true);
