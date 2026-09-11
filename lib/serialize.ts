@@ -56,7 +56,7 @@ function frontmatterFromRecipe(recipe: Recipe): Record<string, unknown> {
 
 // recipe -> full .md file content: YAML frontmatter + "## Notes" body.
 export function serializeRecipe(recipe: Recipe, notes: string): string {
-  const body = `${NOTES_HEADING}\n\n${notes.trim()}\n`;
+  const body = `\n${NOTES_HEADING}\n\n${notes.trim()}\n`;
   return matter.stringify(body, frontmatterFromRecipe(recipe));
 }
 
